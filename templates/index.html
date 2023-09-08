@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div>
+Index page h ye
+Your todos are: <br> <br>
+{% for todo_days in todos %}
+{% for todo, status in todo_days.items %}
+    {{todo}} 
+    {{status}}
+{% endfor %}<br> <br>
+{% endfor %}
+
+</div>
+{% endblock body %}
