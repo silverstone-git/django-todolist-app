@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
 from .models import Todo
@@ -70,10 +70,13 @@ def login_view(request):
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
-            print("the request method was indeed post")
+            print("form data is valid")
             login_req: dict[str, list[str]] = dict(request.POST)
+
+            print("form data is: ", form.data['username'], type(form.data['username']))
+            print("form data is: ", form.data['password'], type(form.data['password']))
             
-            user = authenticate(username = form.data['username'][0].strip(), password = form.data['password'][0].strip())
+            user = authenticate(request, username = form.data['username'].strip(), password = form.data['password'].strip())
             print("got user from authenticate function: \n", user)
             if user is not None:
                 login(request, user)
@@ -86,6 +89,11 @@ def login_view(request):
     return render(request, 'auth.html', {'form': form})
 
 
+
+def log_me_out(request):
+    logout(request)
+    messages.success(request, "You have been successfully logged out")
+    return redirect("/")
 
 def about(request):
     return render(request, 'about.html')

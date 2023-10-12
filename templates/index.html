@@ -24,12 +24,19 @@ Your todos are: <br> <br><br><br>
 	</form>
 </div>
 
+{% else %}
+<br><br>
+<div>Signup to add a todo</div>
+<br>
+
 {% endif %}
 
 {% if anonymous %}
 <br>
 <a href="/login">Login</a> <br>
 <a href="/signup">Signup</a><br>
+{% else %}
+<a href="/logout">Logout</a><br>
 {% endif %}
 
 
