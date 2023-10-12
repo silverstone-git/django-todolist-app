@@ -3,13 +3,35 @@
 {% block body %}
 <div>
 Index page h ye
-Your todos are: <br> <br>
-{% for todo_days in todos %}
-{% for todo, status in todo_days.items %}
-    {{todo}} 
-    {{status}}
-{% endfor %}<br> <br>
+{% if not anonymous %}
+Your todos are: <br> <br><br><br>
+
+{% for todo in todos %}
+<div>
+	{{ todo.title }} <br>
+	desc == {{ todo.desc }} <br>
+	completed == {{ todo.completed }} <br>
+	added == {{ todo.added }}
+</div>
+<br><br>
 {% endfor %}
+<br><br><br><br>
+<div>
+	<form method="POST">
+		{% csrf_token %}
+		{{ form.as_p }}
+		<input type='submit' >
+	</form>
+</div>
+
+{% endif %}
+
+{% if anonymous %}
+<br>
+<a href="/login">Login</a> <br>
+<a href="/signup">Signup</a><br>
+{% endif %}
+
 
 </div>
 {% endblock body %}

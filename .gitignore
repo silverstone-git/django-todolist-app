@@ -1,0 +1,4 @@
+tdl_venv/
+todo_app/migrations/
+todo_project/__pycache__/
+todo_app/__pycache__/
