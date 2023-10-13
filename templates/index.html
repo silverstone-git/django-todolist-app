@@ -21,7 +21,7 @@ Your todos are: <br> <br><br><br>
 	<form method="POST">
 		{% csrf_token %}
 		<input type="hidden" value="{{ todo.todoid }}" name="tobeupdated">
-		<input type="checkbox" value="{{todo.completed}}" onChange="this.form.submit()" name="checkbox">
+		<input type="checkbox" value="{{todo.completed}}" onChange="this.form.submit()" name="checkbox" {% if todo.completed is not None %} checked {% endif %}>
 	</form>
 </div>
 <br><br>

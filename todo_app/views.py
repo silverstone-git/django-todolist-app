@@ -3,7 +3,6 @@ from uuid import uuid4
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
-from django.contrib.auth.models import User
 from .models import Todo
 from .forms import TodoForm, LoginForm
 from django.contrib.auth.forms import UserCreationForm
@@ -17,23 +16,33 @@ def index(request):
 
     user_todos = Todo.objects.filter(user = request.user)
     form = TodoForm()
+
     if request.method == "POST" and request.POST.get("tobedeleted"):
         # user clicked the delete button
         user_todos.get(todoid=request.POST.get("tobedeleted")).delete()
         messages.success(request, "deleted todo!")
         return render(request, 'index.html', {'todos': user_todos, 'form': form, 'anonymous': False})
+
     elif request.method == "POST" and request.POST.get("tobeupdated"):
         # user clicked the checkbox
-        print("request.POST in update block is ", request.POST)
+        todo_tobeupdated = user_todos.get(todoid = request.POST.get("tobeupdated"))
+        # toggles the complete value in db
+        if todo_tobeupdated.completed is None:
+            # if its incomplete in the database, then mark it complete by adding a complete date
+            todo_tobeupdated.completed = datetime.now()
+        else:
+            # if its complete in the db, mark it incomplete
+            todo_tobeupdated.completed = None
+        todo_tobeupdated.save()
+        messages.success(request, "updated todo!")
         return render(request, 'index.html', {'todos': user_todos, 'form': form, 'anonymous': False})
+
     elif request.method == "POST" and request.POST.get("title") and request.POST.get("desc"):
         # user is trying to post a todo, not view it
-        print("todo being added...")
         form = TodoForm(request.POST)
         if form.is_valid():
             todo = form.save(commit = False)
             todo.todoid = uuid4()
-            print("new todo's todoid is : ", todo.todoid)
             todo.user = request.user
             todo.added = datetime.now()
             todo.completed = None
