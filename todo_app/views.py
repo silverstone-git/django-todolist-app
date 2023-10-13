@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import uuid4
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
@@ -15,12 +16,23 @@ def index(request):
         return render(request, 'index.html', {'anonymous': True})
 
     user_todos = list(Todo.objects.filter(user = request.user))
-
-    if request.method == "POST":
+    form = TodoForm()
+    if request.method == "POST" and request.POST.get("tobedeleted"):
+        # user clicked the delete button
+        print("request.POST in delete block is ", request.POST)
+        return render(request, 'index.html', {'todos': user_todos, 'form': form, 'anonymous': False})
+    elif request.method == "POST" and request.POST.get("tobeupdated"):
+        # user clicked the checkbox
+        print("request.POST in update block is ", request.POST)
+        return render(request, 'index.html', {'todos': user_todos, 'form': form, 'anonymous': False})
+    elif request.method == "POST" and request.POST.get("title") and request.POST.get("desc"):
         # user is trying to post a todo, not view it
+        print("todo being added...")
         form = TodoForm(request.POST)
         if form.is_valid():
             todo = form.save(commit = False)
+            todo.todoid = uuid4()
+            print("new todo's todoid is : ", todo.todoid)
             todo.user = request.user
             todo.added = datetime.now()
             todo.completed = None
@@ -34,28 +46,16 @@ def index(request):
             # not emptying the form to let the user validate it
             messages.warning(request, "Nahi bana todo")
             return render(request, 'index.html', {'todos': user_todos, 'form': form, 'anonymous': False})
-    #elif request.method == "UPDATE":
-        # updates the todo by title
-    #elif request.method == "DELETE":
-        # Deletes the todo by title
 
-    # get username and show their todos
-
-    print("request user and todos are: ")
-    print(request.user)
-    print(user_todos)
-
-    # form stuff
-    form = TodoForm()
-    return render(request, 'index.html', {'todos': user_todos, 'form': form, 'anonymous': False})
+    else:
+        # get username and show their todos
+        return render(request, 'index.html', {'todos': user_todos, 'form': form, 'anonymous': False})
 
 
 def signup(request):
     userform = UserCreationForm()
     if request.method == "POST":
         userform = UserCreationForm(request.POST)
-        print("userform data is: ")
-        print(userform.data)
         if userform.is_valid():
             userform.save()
             userform = UserCreationForm()
@@ -70,14 +70,10 @@ def login_view(request):
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
-            print("form data is valid")
             login_req: dict[str, list[str]] = dict(request.POST)
 
-            print("form data is: ", form.data['username'], type(form.data['username']))
-            print("form data is: ", form.data['password'], type(form.data['password']))
             
             user = authenticate(request, username = form.data['username'].strip(), password = form.data['password'].strip())
-            print("got user from authenticate function: \n", user)
             if user is not None:
                 login(request, user)
                 messages.success(request, "you are logged in")

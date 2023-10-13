@@ -6,6 +6,7 @@ from django.db.utils import settings
 User = settings.AUTH_USER_MODEL
 
 class Todo(models.Model):
+    todoid = models.UUIDField()
     title = models.CharField(max_length = 50, unique = True)
     desc = models.CharField(max_length = 3000)
     added = models.DateField()
@@ -13,4 +14,4 @@ class Todo(models.Model):
     user = models.ForeignKey(User, default = 1, null = True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return "Todo '{}',\nby {}".format(self.title, self.user)
+        return "Todo {} \n titled '{}',\nby {}".format(self.todoid, self.title, self.user)

@@ -12,6 +12,17 @@ Your todos are: <br> <br><br><br>
 	desc == {{ todo.desc }} <br>
 	completed == {{ todo.completed }} <br>
 	added == {{ todo.added }}
+	<form method="POST">
+		{% csrf_token %}
+		{# this title_addeddate is being done to uniquely identify which todo is being clicked so that the controller can delete it properly #}
+		<input type="hidden" value="{{ todo.todoid }}" name="tobedeleted">
+		<button type="submit">Delete</button>
+	</form>
+	<form method="POST">
+		{% csrf_token %}
+		<input type="hidden" value="{{ todo.todoid }}" name="tobeupdated">
+		<input type="checkbox" value="{{todo.completed}}" onChange="this.form.submit()" name="checkbox">
+	</form>
 </div>
 <br><br>
 {% endfor %}
