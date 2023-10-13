@@ -15,11 +15,12 @@ def index(request):
     if not request.user.is_authenticated:
         return render(request, 'index.html', {'anonymous': True})
 
-    user_todos = list(Todo.objects.filter(user = request.user))
+    user_todos = Todo.objects.filter(user = request.user)
     form = TodoForm()
     if request.method == "POST" and request.POST.get("tobedeleted"):
         # user clicked the delete button
-        print("request.POST in delete block is ", request.POST)
+        user_todos.get(todoid=request.POST.get("tobedeleted")).delete()
+        messages.success(request, "deleted todo!")
         return render(request, 'index.html', {'todos': user_todos, 'form': form, 'anonymous': False})
     elif request.method == "POST" and request.POST.get("tobeupdated"):
         # user clicked the checkbox
@@ -41,7 +42,7 @@ def index(request):
             # empty the form after saving
             form = TodoForm()
             messages.success(request, "Ban gya todo")
-            return render(request, 'index.html', {'todos': user_todos + [todo], 'form': form, 'anonymous': False})
+            return render(request, 'index.html', {'todos': user_todos, 'form': form, 'anonymous': False})
         else:
             # not emptying the form to let the user validate it
             messages.warning(request, "Nahi bana todo")
